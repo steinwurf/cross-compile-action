@@ -1,0 +1,55 @@
+name: Raspberry Pi make-specs
+on:
+  workflow_call:
+    inputs:
+      extra_resolve_options:
+        description: "Extra Resolve Options"
+        type: string
+        required: false
+      test_binary_name:
+        required: true
+        type: string
+env:
+  EXTRA_RESOLVE_OPTIONS: ${{ github.event.inputs.extra_resolve_options }}
+  BINARY_NAME: ${{ github.event.inputs.test_binary_name }}
+jobs:
+  cross-compile-raspberry-pi:
+    strategy:
+      fail-fast: false
+    runs-on: [self-hosted, docker, builder]
+    name: Raspberry Pi 3 Cross
+    container:
+      image: ghcr.io/steinwurf/gcc-8.3.0-raspberrypi-armv7:1.0.0
+      options: --user 0:0
+      volumes:
+        - /home/buildbot/.ssh:/root/.ssh
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Waf Configure
+        run: python3 waf configure --git_protocol=git@ --cxx_mkspec=cxx_raspberry_gxx83_armv7 $EXTRA_RESOLVE_OPTIONS
+      - name: Waf Build
+        run: |
+          echo "::add-matcher::.github/gcc-problem-matcher.json"
+          python3 waf
+      - name: Upload Test Binary Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: test_binary
+          path: |
+            build/linux
+            !build/linux/**/**.*
+          retention-days: 1
+  raspberry_pi_tests:
+    needs: cross-compile-raspberry-pi
+    strategy:
+      fail-fast: false
+    runs-on: [self-hosted, raspberry_pi_3]
+    name: Raspberry Pi 3 Run Tests
+    steps:
+      - name: Download Test Binary Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: test_binary
+      - name: Run all tests
+        run: chmod +x $BINARY_NAME && ./$BINARY_NAME
