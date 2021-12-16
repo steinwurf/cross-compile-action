@@ -78,7 +78,5 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ${{ inputs.test_runner }}_tests
-      - run: ls -la
-        working-directory: test
       - name: Run all tests
         run: chmod +x ${{ inputs.test_binary_name }} && ./${{ inputs.test_binary_name }} ${{ inputs.test_option }}
