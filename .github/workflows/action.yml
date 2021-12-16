@@ -26,6 +26,10 @@ on:
         description: "Name of the test binary produced from the build"
         required: true
         type: string
+      test_binary_directory:
+        description: "Path to the test binary directory after compilation"
+        required: true
+        type: string
       test_option:
         description: "Test-option to run the test binary with."
         required: false
@@ -55,9 +59,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ inputs.test_runner }}_tests
-          path: |
-            build/${{ inputs.cxx_mkspec }}
-            !build/${{ inputs.cxx_mkspec }}/**/**.*
+          path: ${{ inputs.test_binary_directory }}
           retention-days: 1
   tests:
     needs: cross-compile
