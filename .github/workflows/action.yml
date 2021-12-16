@@ -55,9 +55,6 @@ jobs:
         run: |
           echo "::add-matcher::.github/gcc-problem-matcher.json"
           python3 waf
-      - name: Run ls
-        working-directory: ${{ inputs.test_binary_directory }}
-        run: ls -la
       - name: Upload Test Binary Artifact
         uses: actions/upload-artifact@v2
         with:
@@ -75,5 +72,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ${{ inputs.test_runner }}_tests
+      - run: ls -la
       - name: Run all tests
         run: chmod +x ${{ inputs.test_binary_name }} && ./${{ inputs.test_binary_name }} ${{ inputs.test_option }}
