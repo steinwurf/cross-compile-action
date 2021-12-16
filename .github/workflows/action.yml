@@ -22,6 +22,10 @@ on:
         description: "The tag of the self-hosted machine to run the tests"
         required: true
         type: string
+      test_binary_name:
+        description: "Name of the test binary produced from the build"
+        required: true
+        type: string
       test_option:
         description: "Test-option to run the test binary with."
         required: false
@@ -42,7 +46,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
       - name: Waf Configure
-        run: python3 waf configure --git_protocol=git@ ${{ inputs.cxx_mkspec }} ${{ inputs.extra_resolve_options}}
+        run: python3 waf configure --git_protocol=git@ --cxx_mkspec=${{ inputs.cxx_mkspec }} ${{ inputs.extra_resolve_options}}
       - name: Waf Build
         run: |
           echo "::add-matcher::.github/gcc-problem-matcher.json"
@@ -52,8 +56,8 @@ jobs:
         with:
           name: tests_$GITHUB_RUN_ID
           path: |
-            build/linux
-            !build/linux/**/**.*
+            build/${{ inputs.cxx_mkspec }}
+            !build/${{ inputs.cxx_mkspec }}/**/**.*
           retention-days: 1
   tests:
     needs: cross-compile
