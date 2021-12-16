@@ -62,7 +62,7 @@ jobs:
       - name: Gather Test Binary and Input files
         run: |
           mkdir artifact
-          mv ${{ inputs.test_binary_directory }} ${{ inputs.test_file1 }} ./artifact
+          mv ${{ inputs.test_binary_directory }}/${{ inputs.test_binary_name }} ${{ inputs.test_file1 }} ./artifact
       - name: Upload Test Binary Artifact
         uses: actions/upload-artifact@v2
         with:
