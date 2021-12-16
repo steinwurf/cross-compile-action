@@ -35,6 +35,8 @@ on:
         required: false
         type: string
         default: ""
+      # Additional optional input files to add to the uploaded artifact.
+      # Could e.g be a text file parsed by a test
       test_file1:
         description: "Path to first extra test file for input tests."
         required: false
@@ -52,6 +54,26 @@ on:
         required: false
         type: string
       test_file5:
+        description: "Path to first extra test file for input tests."
+        required: false
+        type: string
+      test_file6:
+        description: "Path to first extra test file for input tests."
+        required: false
+        type: string
+      test_file7:
+        description: "Path to first extra test file for input tests."
+        required: false
+        type: string
+      test_file8:
+        description: "Path to first extra test file for input tests."
+        required: false
+        type: string
+      test_file9:
+        description: "Path to first extra test file for input tests."
+        required: false
+        type: string
+      test_file10:
         description: "Path to first extra test file for input tests."
         required: false
         type: string
@@ -78,7 +100,7 @@ jobs:
       - name: Gather Test Binary and Input files
         run: |
           mkdir artifact
-          mv ${{ inputs.test_binary_directory }}/${{ inputs.test_binary_name }} ${{ inputs.test_file1 }} ${{ inputs.test_file2 }} ${{ inputs.test_file3 }} ${{ inputs.test_file4 }} ${{ inputs.test_file5 }} ./artifact
+          mv ${{ inputs.test_binary_directory }}/${{ inputs.test_binary_name }} ${{ inputs.test_file1 }} ${{ inputs.test_file2 }} ${{ inputs.test_file3 }} ${{ inputs.test_file4 }} ${{ inputs.test_file5 }} ${{ inputs.test_file6 }} ${{ inputs.test_file7 }} ${{ inputs.test_file8 }} ${{ inputs.test_file9 }} ${{ inputs.test_file10 }} ./artifact
       - name: Upload Test Binary Artifact
         uses: actions/upload-artifact@v2
         with:
