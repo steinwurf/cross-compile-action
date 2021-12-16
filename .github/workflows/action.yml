@@ -27,7 +27,7 @@ on:
         required: true
         type: string
       test_binary_directory:
-        description: "Path to the test binary directory after compilation"
+        description: "The directory containing the test binary."
         required: true
         type: string
       test_option:
@@ -35,6 +35,10 @@ on:
         required: false
         type: string
         default: ""
+      test_file1:
+        description: "Path to first extra test file for input tests."
+        required: false
+        type: string
 jobs:
   cross-compile:
     strategy:
@@ -59,7 +63,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ inputs.test_runner }}_tests
-          path: ${{ inputs.test_binary_directory }}
+          path: |
+            ${{ inputs.test_binary_directory }}
+            ${{ inputs.test_file1 }}
           retention-days: 1
   tests:
     needs: cross-compile
