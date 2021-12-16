@@ -1,4 +1,4 @@
-name: Raspberry Pi make-specs
+name: Cross-compile make-specs
 on:
   workflow_call:
     inputs:
@@ -6,20 +6,35 @@ on:
         description: "Extra Resolve Options"
         type: string
         required: false
-      test_binary_name:
+      name:
+        description: "Name of the runner-type e.g 'Raspberry Pi' or 'OpenWRT-MIPS'"
+        type: string
+        required: false
+      cxx_mkspec:
+        description: "The given mkspec option to give to waf."
         required: true
         type: string
-env:
-  EXTRA_RESOLVE_OPTIONS: ${{ github.event.inputs.extra_resolve_options }}
-  BINARY_NAME: ${{ github.event.inputs.test_binary_name }}
+      image:
+        description: "The docker image to use for the cross-compilation."
+        required: true
+        type: string
+      test_runner:
+        description: "The tag of the self-hosted machine to run the tests"
+        required: true
+        type: string
+      test_option:
+        description: "Test-option to run the test binary with."
+        required: false
+        type: string
+        default: ""
 jobs:
-  cross-compile-raspberry-pi:
+  cross-compile:
     strategy:
       fail-fast: false
     runs-on: [self-hosted, docker, builder]
-    name: Raspberry Pi 3 Cross
+    name: ${{ inputs.name }} Cross-compile
     container:
-      image: ghcr.io/steinwurf/gcc-8.3.0-raspberrypi-armv7:1.0.0
+      image: ${{ inputs.image }}
       options: --user 0:0
       volumes:
         - /home/buildbot/.ssh:/root/.ssh
@@ -27,7 +42,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
       - name: Waf Configure
-        run: python3 waf configure --git_protocol=git@ --cxx_mkspec=cxx_raspberry_gxx83_armv7 $EXTRA_RESOLVE_OPTIONS
+        run: python3 waf configure --git_protocol=git@ ${{ inputs.cxx_mkspec }} ${{ inputs.extra_resolve_options}}
       - name: Waf Build
         run: |
           echo "::add-matcher::.github/gcc-problem-matcher.json"
@@ -35,21 +50,21 @@ jobs:
       - name: Upload Test Binary Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: test_binary
+          name: tests_$GITHUB_RUN_ID
           path: |
             build/linux
             !build/linux/**/**.*
           retention-days: 1
-  raspberry_pi_tests:
-    needs: cross-compile-raspberry-pi
+  tests:
+    needs: cross-compile
     strategy:
       fail-fast: false
-    runs-on: [self-hosted, raspberry_pi_3]
-    name: Raspberry Pi 3 Run Tests
+    runs-on: [self-hosted, "${{ inputs.test_runner }}"]
+    name: Run Tests
     steps:
       - name: Download Test Binary Artifact
         uses: actions/download-artifact@v2
         with:
-          name: test_binary
+          name: tests_$GITHUB_RUN_ID
       - name: Run all tests
-        run: chmod +x $BINARY_NAME && ./$BINARY_NAME
+        run: chmod +x ${{ inputs.test_binary_name }} && ./${{ inputs.test_binary_name }} ${{ inputs.test_option }}
