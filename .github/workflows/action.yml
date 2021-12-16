@@ -54,7 +54,7 @@ jobs:
       - name: Upload Test Binary Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: tests_$GITHUB_RUN_ID
+          name: ${{ inputs.test_runner }}_tests
           path: |
             build/${{ inputs.cxx_mkspec }}
             !build/${{ inputs.cxx_mkspec }}/**/**.*
@@ -69,6 +69,6 @@ jobs:
       - name: Download Test Binary Artifact
         uses: actions/download-artifact@v2
         with:
-          name: tests_$GITHUB_RUN_ID
+          name: ${{ inputs.test_runner }}_tests
       - name: Run all tests
         run: chmod +x ${{ inputs.test_binary_name }} && ./${{ inputs.test_binary_name }} ${{ inputs.test_option }}
