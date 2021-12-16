@@ -8,6 +8,10 @@ Latest
 ------
 * tbd
 
+1.0.1
+-----
+* Patch: Fixed file name format for upload/download of artifact.
+
 1.0.0
 -----
 * Major: Initital release.
