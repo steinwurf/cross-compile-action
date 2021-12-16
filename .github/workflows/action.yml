@@ -1,0 +1,74 @@
+name: Cross-compile make-specs
+on:
+  workflow_call:
+    inputs:
+      extra_resolve_options:
+        description: "Extra Resolve Options"
+        type: string
+        required: false
+      name:
+        description: "Name of the runner-type e.g 'Raspberry Pi' or 'OpenWRT-MIPS'"
+        type: string
+        required: false
+      cxx_mkspec:
+        description: "The given mkspec option to give to waf."
+        required: true
+        type: string
+      image:
+        description: "The docker image to use for the cross-compilation."
+        required: true
+        type: string
+      test_runner:
+        description: "The tag of the self-hosted machine to run the tests"
+        required: true
+        type: string
+      test_binary_name:
+        description: "Name of the test binary produced from the build"
+        required: true
+        type: string
+      test_option:
+        description: "Test-option to run the test binary with."
+        required: false
+        type: string
+        default: ""
+jobs:
+  cross-compile:
+    strategy:
+      fail-fast: false
+    runs-on: [self-hosted, docker, builder]
+    name: ${{ inputs.name }} Cross-compile
+    container:
+      image: ${{ inputs.image }}
+      options: --user 0:0
+      volumes:
+        - /home/buildbot/.ssh:/root/.ssh
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Waf Configure
+        run: python3 waf configure --git_protocol=git@ --cxx_mkspec=${{ inputs.cxx_mkspec }} ${{ inputs.extra_resolve_options}}
+      - name: Waf Build
+        run: |
+          echo "::add-matcher::.github/gcc-problem-matcher.json"
+          python3 waf
+      - name: Upload Test Binary Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: tests_$GITHUB_RUN_ID
+          path: |
+            build/${{ inputs.cxx_mkspec }}
+            !build/${{ inputs.cxx_mkspec }}/**/**.*
+          retention-days: 1
+  tests:
+    needs: cross-compile
+    strategy:
+      fail-fast: false
+    runs-on: [self-hosted, "${{ inputs.test_runner }}"]
+    name: Run Tests
+    steps:
+      - name: Download Test Binary Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: tests_$GITHUB_RUN_ID
+      - name: Run all tests
+        run: chmod +x ${{ inputs.test_binary_name }} && ./${{ inputs.test_binary_name }} ${{ inputs.test_option }}
