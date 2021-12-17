@@ -8,6 +8,11 @@ Latest
 ------
 * tbd
 
+3.0.0
+-----
+* Major: Changed the format of the extra test file inputs.
+         Now all files given in test_files argument
+
 2.0.0
 -----
 * Major: Added required test_binary_directory input.
