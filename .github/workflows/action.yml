@@ -37,44 +37,8 @@ on:
         default: ""
       # Additional optional input files to add to the uploaded artifact.
       # Could e.g be a text file parsed by a test
-      test_file1:
-        description: "Path to first extra test file for input tests."
-        required: false
-        type: string
-      test_file2:
-        description: "Path to first extra test file for input tests."
-        required: false
-        type: string
-      test_file3:
-        description: "Path to first extra test file for input tests."
-        required: false
-        type: string
-      test_file4:
-        description: "Path to first extra test file for input tests."
-        required: false
-        type: string
-      test_file5:
-        description: "Path to first extra test file for input tests."
-        required: false
-        type: string
-      test_file6:
-        description: "Path to first extra test file for input tests."
-        required: false
-        type: string
-      test_file7:
-        description: "Path to first extra test file for input tests."
-        required: false
-        type: string
-      test_file8:
-        description: "Path to first extra test file for input tests."
-        required: false
-        type: string
-      test_file9:
-        description: "Path to first extra test file for input tests."
-        required: false
-        type: string
-      test_file10:
-        description: "Path to first extra test file for input tests."
+      test_files:
+        description: "String containing the paths to files for input tests, seperated by space."
         required: false
         type: string
 jobs:
