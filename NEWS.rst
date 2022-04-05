@@ -8,6 +8,10 @@ Latest
 ------
 * tbd
 
+4.0.0
+-----
+* Major: Added a retry step at configure time.
+
 3.0.0
 -----
 * Major: Changed the format of the extra test file inputs.
