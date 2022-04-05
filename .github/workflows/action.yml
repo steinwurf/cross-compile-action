@@ -56,7 +56,11 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
       - name: Waf Configure
-        run: python3 waf configure --git_protocol=git@ --cxx_mkspec=${{ inputs.cxx_mkspec }} ${{ inputs.extra_resolve_options}}
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 3
+          timeout_minutes: 15
+          command: python3 waf configure --git_protocol=git@ --cxx_mkspec=${{ inputs.cxx_mkspec }} ${{ inputs.extra_resolve_options}}
       - name: Waf Build
         run: |
           echo "::add-matcher::.github/gcc-problem-matcher.json"
